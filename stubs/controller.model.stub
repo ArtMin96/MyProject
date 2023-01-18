@@ -1,0 +1,125 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespacedModel }};
+
+class {{ class }} extends CrudController
+{
+
+    private $view_path;
+
+    private $variable = '||!!VARNAME!!||';
+
+
+     public function __construct()
+     {
+        parent::__construct();
+
+         if(request()->route())
+         {
+             $this->view_path = 'admin.pages.'.request()->route()->getName();
+         }
+     }
+
+
+    /**
+     * @var array
+     */
+
+    private function parameters ()
+     {
+         $parameters = $this->allColumns(str_replace('Controller','','{{ class }}')) ;
+
+         /* For validation rules write here
+          For Example:
+                  $parameters['title'] = 'required';
+         */
+
+
+         return $parameters ;
+
+     }
+
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+
+    public function index()
+    {
+          return view($this->view_path,['all'=>{{ model }}::get()]);
+    }
+
+   /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+
+    public function create()
+    {
+         return view($this->view_path,[$this->variable => new {{ model }}()]);
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+
+    public function store()
+    {
+         {{ model }}::create($this->validateRequest($this->parameters()));
+
+                return  redirect()
+                            ->route($this->variable.'.index')
+                                ->with('success','Parameters added successfully')->withInput();
+    }
+
+
+     /**
+     * @param {{ model }} ${{ modelVariable }}
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+
+    public function show({{ model }} ${{ modelVariable }})
+    {
+       return view($this->view_path,[$this->variable=> ${{ modelVariable }}]);
+    }
+
+    /**
+     * @param {{ model }} ${{ modelVariable }}
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+
+    public function edit({{ model }} ${{ modelVariable }})
+    {
+       return view($this->view_path,[$this->variable => ${{ modelVariable }}]);
+    }
+
+    /**
+     * @param {{ model }} ${{ modelVariable }}
+     * @return \Illuminate\Http\RedirectResponse
+     */
+
+    public function update({{ model }} ${{ modelVariable }})
+    {
+        ${{ modelVariable }}->update($this->validateRequest($this->parameters()));
+
+        return redirect()
+                        ->route($this->variable.'.index')
+                            ->with('success','Parameters Successful Changes');
+    }
+
+    /**
+     * @param {{ model }} ${{ modelVariable }}
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Exception
+     */
+
+    public function destroy({{ model }} ${{ modelVariable }})
+    {
+       ${{ modelVariable }}->delete();
+
+               return  redirect()
+                       ->route($this->variable.'.index')
+                           ->with('massage','Successfully Removed');
+    }
+}
